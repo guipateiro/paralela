@@ -6,8 +6,8 @@
 int xMove[8] = { -2, 1, -1, -2, 2, -1,  1,  2 };
 int yMove[8] = { -1, 2,  2,  1, 1, -2, -2, -1 };
 
-#define M 8
-#define N 8
+int M = 8;
+int N = 8;
 
 clock_t start, end;
 
@@ -120,7 +120,15 @@ int passeio_cavalo_seq(int **tabuleiro, int x, int y, int jogada){
 int main(int argc, char** argv){
     int **tabuleiro;
     int x_inicio = 0, y_inicio = 0;
-    treads = atoi(argv[1]);
+    treads = 1;
+    if (argc < 2) {
+        fprintf(stderr, "Argumento nao fornecido: processando com 1 thread\n");
+    }
+    else
+        treads = atoi(argv[1]);
+
+    scanf("%d %d %d %d", &N, &M, &x_inicio, &y_inicio);
+
     double cpu_time_used;
     start = clock();
     
