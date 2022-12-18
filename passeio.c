@@ -9,7 +9,7 @@ int yMove[8] = { -1, 2,  2,  1, 1, -2, -2, -1 };
 int M = 8;
 int N = 8;
 
-clock_t start, end;
+double start;
 
 int treads = 1; 
 
@@ -37,8 +37,8 @@ int passeio_cavalo_seq2(int **tabuleiro, int x, int y, int jogada){
         #pragma omp critical
         {
         print_tabuleiro(tabuleiro);
-        end = clock();
-        double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        double end = omp_get_wtime();
+        double cpu_time_used = end - start;
         printf("%f seconds\n",cpu_time_used);
         }
         exit(1);
@@ -82,7 +82,7 @@ int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
             int y2 = y + yMove[i];
             if (jogada_valida(x2,y2, tabuleiro2)){
                 tabuleiro2[x2][y2] = jogada+1;
-                printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
+                //printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
                 passeio_cavalo_seq2(tabuleiro2, x2,y2, jogada+1);
                 tabuleiro2[x2][y2] = 0;
             }
@@ -128,9 +128,18 @@ int main(int argc, char** argv){
         treads = atoi(argv[1]);
 
     scanf("%d %d %d %d", &N, &M, &x_inicio, &y_inicio);
+    if (N < 5 || M < 5) {
+        fprintf(stderr, "Tabuleiro deve ser pelo menos 5x5\n");
+        exit(1);
+    }
+    if (x_inicio < 0 || x_inicio >= N || y_inicio < 0 || y_inicio >= M) {
+        fprintf(stderr, "Coordenadas iniciais invalidas\n");
+        exit(1);
+    }
 
     double cpu_time_used;
-    start = clock();
+    double end;
+    start = omp_get_wtime();
     
     printf("Resolvendo para N=%d e M=%d\n",N,M);
 
@@ -153,7 +162,7 @@ int main(int argc, char** argv){
         print_tabuleiro(tabuleiro);
     else
         printf("Nao existe solucao\n");
-    end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    end = omp_get_wtime();
+    cpu_time_used = end - start;
     printf("%f seconds\n",cpu_time_used);
 }
