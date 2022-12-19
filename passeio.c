@@ -6,8 +6,8 @@
 int xMove[8] = { -2, 1, -1, -2, 2, -1,  1,  2 };
 int yMove[8] = { -1, 2,  2,  1, 1, -2, -2, -1 };
 
-int M = 8;
-int N = 8;
+int M = 7;
+int N = 6;
 
 double start;
 
@@ -15,15 +15,15 @@ int treads = 1;
 
 void print_tabuleiro(int **tabuleiro){
     int i, j;
-    for (i=0; i < N; i++){
-        for (j=0; j < M; j++)
+    for (i=0; i < M; i++){
+        for (j=0; j < N; j++)
             printf("%3d ",tabuleiro[i][j]);
         printf("\n");
     }
 }
 
 int jogada_valida(int x, int y, int **tabuleiro){
-    if (x < 0  || x >= N || y < 0 || y >= M)
+    if (x < 0  || x >= M || y < 0 || y >= N)
         return 0;
     if(tabuleiro[x][y] != 0)
         return 0;
@@ -71,28 +71,27 @@ int **copiamatriz(int **tabuleiro){
 }
 
 int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
-    #pragma omp parallel firstprivate(tabuleiro, jogada)
+    #pragma omp parallel
+    #pragma omp single
     {
-    int **tabuleiro2 = copiamatriz(tabuleiro);
-    #pragma omp for
+    #pragma omp taskloop firstprivate(tabuleiro, jogada) grainsize(4)
     for (int i=0;i<8;i++){
-        #pragma omp task firstprivate(tabuleiro2, jogada)
-        {
-            int x2 = x + xMove[i];
-            int y2 = y + yMove[i];
-            if (jogada_valida(x2,y2, tabuleiro2)){
-                tabuleiro2[x2][y2] = jogada+1;
-                //printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
-                passeio_cavalo_seq2(tabuleiro2, x2,y2, jogada+1);
-                tabuleiro2[x2][y2] = 0;
-            }
+        int **tabuleiro2 = copiamatriz(tabuleiro);
+        int x2 = x + xMove[i];
+        int y2 = y + yMove[i];
+        if (jogada_valida(x2,y2, tabuleiro2)){
+            tabuleiro2[x2][y2] = jogada+1;
+            printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
+            passeio_cavalo_seq2(tabuleiro2, x2,y2, jogada+1);
+            tabuleiro2[x2][y2] = 0;
+        }
+                // libera a memória da matriz
+        for (int i=0; i < N; i++)
+            free (tabuleiro2[i]);
+        free (tabuleiro2);
         }
     }
-    // libera a memória da matriz
-    for (int i=0; i < N; i++)
-        free (tabuleiro2[i]);
-    free (tabuleiro2);
-    } 
+    
     return 0;
 }
 
@@ -105,15 +104,41 @@ int passeio_cavalo_seq(int **tabuleiro, int x, int y, int jogada){
         if (jogada_valida(x2,y2, tabuleiro)){
             tabuleiro[x2][y2] = jogada+1;
             //printf("jogada = %i || tread = %i \n", jogada , omp_get_thread_num());
-            if((M*N)/2 == jogada){
-                if (!passeio_cavalo_par(tabuleiro, x2,y2, jogada+1))
-                    tabuleiro[x2][y2] = 0;
+            if((M*N)/4 == jogada){
+                passeio_cavalo_par(tabuleiro, x2,y2, jogada+1);
+                tabuleiro[x2][y2] = 0;
             }else{
-                if (!passeio_cavalo_seq(tabuleiro, x2,y2, jogada+1) )
-                    tabuleiro[x2][y2] = 0;
+                passeio_cavalo_seq(tabuleiro, x2,y2, jogada+1);
+                tabuleiro[x2][y2] = 0;
             }
         }
     }    
+    return 0;
+}
+int passeio_cavalo_par2(int **tabuleiro, int x, int y, int jogada){
+    #pragma omp parallel
+    #pragma omp single
+    {
+    #pragma omp taskloop firstprivate(tabuleiro, jogada) grainsize(1)
+    for (int i=0;i<8;i++){
+        {
+            int **tabuleiro2 = copiamatriz(tabuleiro);
+            int x2 = x + xMove[i];
+            int y2 = y + yMove[i];
+            if (jogada_valida(x2,y2, tabuleiro2)){
+                tabuleiro2[x2][y2] = jogada+1;
+                printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
+                passeio_cavalo_seq(tabuleiro2, x2,y2, jogada+1);
+                tabuleiro2[x2][y2] = 0;
+            }
+                    // libera a memória da matriz
+            for (int i=0; i < N; i++)
+                free (tabuleiro2[i]);
+            free (tabuleiro2);
+        }
+    }
+    
+    } 
     return 0;
 }
 
@@ -147,6 +172,7 @@ int main(int argc, char** argv){
     omp_set_num_threads(treads);
 
 
+
     // aloca um vetor de LIN ponteiros para linhas
     tabuleiro = malloc (M * sizeof (int*)) ;
 
@@ -158,7 +184,7 @@ int main(int argc, char** argv){
     }               // acesso com sintaxe mais simples
     tabuleiro[x_inicio][y_inicio] = 1;
 
-    if (passeio_cavalo_seq(tabuleiro, x_inicio, y_inicio, 1))
+    if (passeio_cavalo_par2(tabuleiro, x_inicio, y_inicio, 1))
         print_tabuleiro(tabuleiro);
     else
         printf("Nao existe solucao\n");
