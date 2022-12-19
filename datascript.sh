@@ -14,7 +14,7 @@ do
         done
     done
 
-    for ((j = 32; j >= 2; j/=2)) # num de threads
+    for ((j = 32; j >= 1; j/=2)) # num de threads
     do
         FILE="thread${j}_board${i}-ndiv2.txt"
         echo "Preenchendo data/${FILE}..."
