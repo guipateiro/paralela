@@ -3,6 +3,12 @@
 #include <omp.h>
 #include <stdlib.h>
 
+#ifdef TIMEONLY
+#define log(...)
+#else
+#define log(...) printf(__VA_ARGS__)
+#endif
+
 int xMove[8] = { -2, 1, -1, -2, 2, -1,  1,  2 };
 int yMove[8] = { -1, 2,  2,  1, 1, -2, -2, -1 };
 
@@ -18,8 +24,8 @@ void print_tabuleiro(int **tabuleiro){
     int i, j;
     for (i=0; i < M; i++){
         for (j=0; j < N; j++)
-            printf("%3d ",tabuleiro[i][j]);
-        printf("\n");
+            log("%3d ",tabuleiro[i][j]);
+        log("\n");
     }
 }
 
@@ -40,7 +46,9 @@ int passeio_cavalo_seq2(int **tabuleiro, int x, int y, int jogada){
         print_tabuleiro(tabuleiro);
         double end = omp_get_wtime();
         double cpu_time_used = end - start;
-        printf("%f seconds\n, tasks executando: %i\n",cpu_time_used, task);
+        log("Tempo (segundos): ");
+        printf("%f\n",cpu_time_used);
+        log("Tasks executando: %i\n", task);
         }
         exit(1);
     }            
@@ -49,7 +57,7 @@ int passeio_cavalo_seq2(int **tabuleiro, int x, int y, int jogada){
         int y2 = y + yMove[i];
         if (jogada_valida(x2,y2, tabuleiro)){
             tabuleiro[x2][y2] = jogada+1;
-            //printf("jogada = %i || tread = %i ||  endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(),&tabuleiro);  
+            //log("jogada = %i || tread = %i ||  endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(),&tabuleiro);  
             passeio_cavalo_seq2(tabuleiro, x2,y2, jogada+1);
             tabuleiro[x2][y2] = 0;   
         }
@@ -72,7 +80,7 @@ int **copiamatriz(int **tabuleiro){
 }
 
 int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
-    printf("novo fork a partir da thread :  %i\n", omp_get_thread_num());
+    log("novo fork a partir da thread :  %i\n", omp_get_thread_num());
     #pragma omp parallel
     #pragma omp single
     {
@@ -84,7 +92,7 @@ int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
         int y2 = y + yMove[i];
         if (jogada_valida(x2,y2, tabuleiro2)){
             tabuleiro2[x2][y2] = jogada+1;
-            printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
+            log("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
             passeio_cavalo_seq2(tabuleiro2, x2,y2, jogada+1);
             tabuleiro2[x2][y2] = 0;
         }
@@ -107,7 +115,7 @@ int passeio_cavalo_seq(int **tabuleiro, int x, int y, int jogada){
         int y2 = y + yMove[i];
         if (jogada_valida(x2,y2, tabuleiro)){
             tabuleiro[x2][y2] = jogada+1;
-            //printf("jogada = %i || tread = %i \n", jogada , omp_get_thread_num());
+            //log("jogada = %i || tread = %i \n", jogada , omp_get_thread_num());
             if((M*N)/4 == jogada){
                 passeio_cavalo_par(tabuleiro, x2,y2, jogada+1);
                 tabuleiro[x2][y2] = 0;
@@ -131,7 +139,7 @@ int passeio_cavalo_par2(int **tabuleiro, int x, int y, int jogada){
             int y2 = y + yMove[i];
             if (jogada_valida(x2,y2, tabuleiro2)){
                 tabuleiro2[x2][y2] = jogada+1;
-                printf("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
+                log("jogada = %i || tread = %i || i = %i || endereco do tabuleiro = %p \n", jogada , omp_get_thread_num(), i ,tabuleiro2);
                 passeio_cavalo_seq(tabuleiro2, x2,y2, jogada+1);
                 tabuleiro2[x2][y2] = 0;
             }
@@ -169,7 +177,7 @@ int main(int argc, char** argv){
     double end;
     start = omp_get_wtime();
     
-    printf("Resolvendo para N=%d e M=%d\n",N,M);
+    log("Resolvendo para N=%d e M=%d\n",N,M);
 
     omp_set_dynamic(0);
     omp_set_num_threads(treads);
@@ -190,8 +198,10 @@ int main(int argc, char** argv){
     if (passeio_cavalo_par2(tabuleiro, x_inicio, y_inicio, 1))
         print_tabuleiro(tabuleiro);
     else
-        printf("Nao existe solucao\n");
+        log("Nao existe solucao\n");
     end = omp_get_wtime();
     cpu_time_used = end - start;
-    printf("%f seconds\n",cpu_time_used);
+    log("Tempo (segundos): ");
+    printf("%f\n",cpu_time_used);
+    log("Tasks executando: %i\n", task);
 }
