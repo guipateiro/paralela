@@ -10,6 +10,7 @@ int M = 7;
 int N = 6;
 
 double start;
+int task = 0;
 
 int treads = 1; 
 
@@ -39,7 +40,7 @@ int passeio_cavalo_seq2(int **tabuleiro, int x, int y, int jogada){
         print_tabuleiro(tabuleiro);
         double end = omp_get_wtime();
         double cpu_time_used = end - start;
-        printf("%f seconds\n",cpu_time_used);
+        printf("%f seconds\n, tasks executando: %i\n",cpu_time_used, task);
         }
         exit(1);
     }            
@@ -71,11 +72,13 @@ int **copiamatriz(int **tabuleiro){
 }
 
 int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
+    printf("novo fork a partir da thread :  %i\n", omp_get_thread_num());
     #pragma omp parallel
     #pragma omp single
     {
-    #pragma omp taskloop firstprivate(tabuleiro, jogada) grainsize(4)
+    #pragma omp taskloop firstprivate(tabuleiro, jogada) grainsize(2)
     for (int i=0;i<8;i++){
+        task++;
         int **tabuleiro2 = copiamatriz(tabuleiro);
         int x2 = x + xMove[i];
         int y2 = y + yMove[i];
@@ -86,10 +89,11 @@ int passeio_cavalo_par(int **tabuleiro, int x, int y, int jogada){
             tabuleiro2[x2][y2] = 0;
         }
                 // libera a memória da matriz
-        for (int i=0; i < N; i++)
+        for (int i=0; i < M; i++)
             free (tabuleiro2[i]);
         free (tabuleiro2);
-        }
+        task--;
+    }
     }
     
     return 0;
@@ -121,7 +125,7 @@ int passeio_cavalo_par2(int **tabuleiro, int x, int y, int jogada){
     {
     #pragma omp taskloop firstprivate(tabuleiro, jogada) grainsize(1)
     for (int i=0;i<8;i++){
-        {
+        task++;
             int **tabuleiro2 = copiamatriz(tabuleiro);
             int x2 = x + xMove[i];
             int y2 = y + yMove[i];
@@ -135,10 +139,9 @@ int passeio_cavalo_par2(int **tabuleiro, int x, int y, int jogada){
             for (int i=0; i < N; i++)
                 free (tabuleiro2[i]);
             free (tabuleiro2);
+            task--;
         }
     }
-    
-    } 
     return 0;
 }
 
