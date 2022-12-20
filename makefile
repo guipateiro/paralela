@@ -11,5 +11,6 @@ time: all
 
 clean: 
 	rm -f teste
+	rm -f media
 
 

@@ -15,20 +15,22 @@ do
 done
 cd estatistica
 paste -d ";" thread1-00.txt thread2-00.txt thread4-00.txt thread8-00.txt thread16-00.txt thread32-00.txt > tabela00.csv
-#> estatistica/tabelaN2.txt 
+> tabelaN2.txt 
+cd ..
 
-#for ((j = 32; j >= 1; j/=2)) # num de threads
-#do
-#    FILEOUT="thread${j}-N2.txt"
-#    > estatistica/${FILEOUT} # apaga o conteudo dos arquivos
-#    for ((i = 5; i <= 7; i++)) # tamanho dos tabuleiros n x n
-#    do
-#        FILEIN="thread${j}_board${i}-ndiv2.txt"
-#        ./media < data/${FILEIN} >> estatistica/${FILEOUT}
-#    done
+for ((j = 32; j >= 1; j/=2)) # num de threads
+do
+    FILEOUT="thread${j}-N2.txt"
+    > estatistica/${FILEOUT} # apaga o conteudo dos arquivos
+    for ((i = 5; i <= 7; i++)) # tamanho dos tabuleiros n x n
+    do
+        FILEIN="thread${j}_board${i}-ndiv2.txt"
+        ./media < data/${FILEIN} >> estatistica/${FILEOUT}
+    done
     
-#done
-
+done
+cd estatistica
+paste -d ";" thread1-N2.txt thread2-N2.txt thread4-N2.txt thread8-N2.txt thread16-N2.txt thread32-N2.txt > tabelaN2.csv
 rm -rf *.txt
 cd .. 
 

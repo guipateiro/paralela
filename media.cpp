@@ -23,5 +23,5 @@ int main(){
 
     desvio = sqrt(desvio / 20);
     
-    cout << soma << "(desvio: " << desvio << ")\n";
+    cout << media << "( Desvio padrao: " << desvio << " )\n";
 }

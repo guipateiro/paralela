@@ -194,7 +194,7 @@ int main(int argc, char** argv){
             tabuleiro[i][j] = 0 ; 
     }               // acesso com sintaxe mais simples
     tabuleiro[x_inicio][y_inicio] = 1;
-
+   
     if (passeio_cavalo_par2(tabuleiro, x_inicio, y_inicio, 1))
         print_tabuleiro(tabuleiro);
     else
