@@ -8,5 +8,8 @@ all: $(EXE).c
 run: all
 	mpirun -np 2 ./$(EXE)
 
+entrada:
+	gcc -o entrada geraentrada.c -Wall
+
 clear: 
 	rm -f $(EXE)	

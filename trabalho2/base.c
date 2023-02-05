@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <sys/time.h>
 #include <mpi.h>
 
 void read_serie(char * arquivo, double *vetor, int tamanho){
@@ -19,7 +21,7 @@ void read_serie(char * arquivo, double *vetor, int tamanho){
             min = vetor[i];
     }
      media = soma / tamanho;
-     printf("serie total - max: %lf, min: %lf, media: %lf\n", max, min, media);
+    // printf("serie total - max: %lf, min: %lf, media: %lf\n", max, min, media);
 }
 
 void max_min_avg(double *vetor, int tamanho, double *max, double *min, double *media){
@@ -40,12 +42,20 @@ int main(int argc, char **argv){
     double *vet_parcial;
 
     if (argc != 4){
-        fprintf(stderr, "necessário 2 argumentos: %s <arquivo time series> <tamanho time series> <tamanho janela>\n", argv[0]);
+        fprintf(stderr, "necessário 3 argumentos: %s <arquivo time series> <tamanho time series> <tamanho janela>\n", argv[0]);
         return 1;
     }
+
     int tam_serie = atoi(argv[2]);
     int tam_janela = atoi(argv[3]);
 
+	if (tam_janela > tam_serie){
+		 fprintf(stderr, "tamanho de janela nao pode ser maior que o tamanho da serie\n");
+		return 1;
+	}
+
+   	struct timeval inicio, fim;
+	gettimeofday(&inicio, NULL);
 
     MPI_Init(&argc, &argv);
 
@@ -56,27 +66,81 @@ int main(int argc, char **argv){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if(rank == 0){
-        serie = (double *) malloc(sizeof(double)*tam_serie);
+        serie = (double *) calloc(tam_serie + tam_janela, sizeof(double));
         read_serie(argv[1], serie, tam_serie);
-        printf("tamanho da serie: %d, tamanho da janela: %d\n",tam_serie, tam_janela);
+        //printf("tamanho da serie: %d, tamanho da janela: %d\n",tam_serie, tam_janela);
 
     }
-    vet_parcial = (double*) malloc((tam_serie/num_proc  + 1) * sizeof(double));
-    MPI_Scatter(serie, tam_serie/num_proc, MPI_DOUBLE, vet_parcial, tam_serie/num_proc, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    vet_parcial = (double*) malloc((tam_serie/num_proc + tam_serie) * sizeof(double));
+    //MPI_Scatter(serie, tam_serie/num_proc, MPI_DOUBLE, vet_parcial, tam_serie/num_proc, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
+	if (rank == 0) {
+        for(int i=1; i < num_proc; ++i) {
+			//if ((i * (tam_serie/num_proc) - tam_janela + 1) >= 0)
+            	MPI_Send(&serie[(i*(tam_serie/num_proc))], (tam_serie/num_proc) + tam_janela , MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+            //printf("%d, enviando vetor para rank %d\n",rank, i);
+        }
+		double max, min, media;
+		for(int i = 0; (i <= tam_serie/num_proc) && (((rank*(tam_serie/num_proc)) + i + tam_janela) < tam_serie) ; i++){
+			//fprintf(stderr, "indo: %i || %i \n", ((rank*(tam_serie/num_proc)) + i) , tam_serie);
+       		max_min_avg(&serie[i],tam_janela, &max, &min, &media);
+       		//printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
+    	}
+    }
+    else {
+    	double max, min, media;
+		//vet_parcial = (double*) malloc((tam_serie/num_proc) + tam_janela * sizeof(double));
+        MPI_Recv(vet_parcial,tam_serie/num_proc + tam_serie , MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		//fprintf(stderr, "recebeu\n");
+		//fprintf(stderr, "(%i)indo: %i || %i \n", rank, ((rank*(tam_serie/num_proc))) , tam_serie);
+        for(int i = 0; (i <= tam_serie/num_proc) && (((rank*(tam_serie/num_proc)) + i + tam_janela) < tam_serie) ; i++){
+			//fprintf(stderr, "indo\n");
+       		max_min_avg(&vet_parcial[i],tam_janela, &max, &min, &media);
+       		//printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
+    	}
+		free(vet_parcial);
+    }
 
-
-    double max, min, media;
-    printf("numero de janelas: %i\n",((tam_serie/num_proc) - tam_janela));
+   /*
+   // printf("numero de janelas: %i\n",((tam_serie/num_proc) - tam_janela));
     for(int i = 0; i <= ((tam_serie/num_proc) - tam_janela); i++){
         max_min_avg(&vet_parcial[i],tam_janela, &max, &min, &media);
-        printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
+        //printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
     }
-
     free(vet_parcial);
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	if (rank == 0) {
+        for(int i=1; i < num_proc; ++i) {
+            MPI_Send(&serie[(i * (tam_serie/num_proc) - tam_janela + 1)], 2 * tam_janela - 1, MPI_DOUBLE, i, 0, MPI_COMM_WORLD);
+            //printf("%d, enviando numero %d para rank %d\n",rank, num, i);
+        }
+    }
+    else {
+		vet_parcial = (double*) malloc((2 * tam_janela - 1) * sizeof(double));
+        MPI_Recv(vet_parcial, 2 * tam_janela - 1 , MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        for(int i = 0; i <= ((2 * tam_janela - 1) - tam_janela); i++){
+       		max_min_avg(&vet_parcial[i],tam_janela, &max, &min, &media);
+       		//printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
+    	}
+		free(vet_parcial);
+    }*/
+
     if(rank == 0){
         free(serie);
-    }    
+    } 
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	if (rank == 0) {
+		gettimeofday(&fim, NULL);
+		double tempo_exec;
+  
+    	tempo_exec = (fim.tv_sec - inicio.tv_sec) * 1e6;
+    	tempo_exec = (tempo_exec + (fim.tv_usec - 
+                              inicio.tv_usec)) * 1e-6;
+   		printf("%f\n",tempo_exec);
+	}	
     MPI_Finalize();
-    return 0;
+
+	return 0;
 }
