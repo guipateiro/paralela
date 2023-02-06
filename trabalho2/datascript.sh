@@ -5,7 +5,7 @@ mkdir -p data
 echo 1048576 | ./entrada > input.in
 for ((i = 16384; i <= 1048576 ; i*=2)) # tamanho da entrada
 do
-    for ((j = 4; j >= 1; j/=2)) # num de threads
+    for ((j = 32; j >= 1; j/=2)) # num de threads
     do
         FILE="thread${j}_board${i}-128.txt"
         echo "Preenchendo data/${FILE}..."
@@ -16,7 +16,7 @@ do
         done
     done
 
-    for ((j = 4; j >= 1; j/=2)) # num de threads
+    for ((j = 32; j >= 1; j/=2)) # num de threads
     do
         FILE="thread${j}_board${i}-16k.txt"
         echo "Preenchendo data/${FILE}..."
