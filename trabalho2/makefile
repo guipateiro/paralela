@@ -11,5 +11,10 @@ run: all
 entrada:
 	gcc -o entrada geraentrada.c -Wall
 
+media: media.cpp
+	g++ -o media media.cpp -Wall
+
 clear: 
 	rm -f $(EXE)	
+
+purge: clear	
