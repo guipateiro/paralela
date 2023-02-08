@@ -3,7 +3,7 @@ make entrada
 make
 mkdir -p data
 echo 1048576 | ./entrada > input.in
-for ((i = 32768; i <= 1048576 ; i*=2)) # tamanho da entrada
+for ((i = 1048576; i <= 1048576 ; i*=2)) # tamanho da entrada
 do
     #for ((j = 32; j >= 1; j/=2)) # num de threads
     #do
@@ -16,7 +16,7 @@ do
     #    done
     #done
 
-    for ((j = 32; j >= 1; j/=2)) # num de threads
+    for ((j = 8; j >= 1; j/=2)) # num de threads
     do
         FILE="thread${j}_board${i}-32k.txt"
         echo "Preenchendo data/${FILE}..."
