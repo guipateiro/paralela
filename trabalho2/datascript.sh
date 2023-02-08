@@ -18,12 +18,12 @@ do
 
     for ((j = 32; j >= 1; j/=2)) # num de threads
     do
-        FILE="thread${j}_board${i}-16K.txt"
+        FILE="thread${j}_board${i}-16k.txt"
         echo "Preenchendo data/${FILE}..."
-        > data/16K/${FILE} # apaga o conteudo dos arquivos
+        > data/16k/${FILE} # apaga o conteudo dos arquivos
         for ((NUMTIMES = 1; NUMTIMES <= 20; NUMTIMES++)) # num de execucoes do programa
         do
-            mpirun -np $j ./base input.in $i 16374 >> data/16K/${FILE}
+            mpirun -np $j ./base input.in $i 16374 >> data/16k/${FILE}
         done
     done
 

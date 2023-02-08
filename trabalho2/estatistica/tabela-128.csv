@@ -1,0 +1,8 @@
+-;1;2;4;8;16;32
+16384;0.264897( Desvio padrao: 0.00382702 );0.265638( Desvio padrao: 0.00478327 );0.275528( Desvio padrao: 0.0023657 );0.294999( Desvio padrao: 0.00295347 );0.335866( Desvio padrao: 0.00310498 );0.408439( Desvio padrao: 0.010572 )
+32768;0.265568( Desvio padrao: 0.00348064 );0.267236( Desvio padrao: 0.00480231 );0.278735( Desvio padrao: 0.00333713 );0.296059( Desvio padrao: 0.00275342 );0.339359( Desvio padrao: 0.00369491 );0.410769( Desvio padrao: 0.0105258 )
+65536;0.272623( Desvio padrao: 0.00268549 );0.275195( Desvio padrao: 0.0016104 );0.286134( Desvio padrao: 0.00338949 );0.30519( Desvio padrao: 0.00376812 );0.351219( Desvio padrao: 0.00387362 );0.427389( Desvio padrao: 0.0156768 )
+131072;0.290178( Desvio padrao: 0.00246348 );0.294984( Desvio padrao: 0.00260042 );0.303578( Desvio padrao: 0.00207486 );0.322808( Desvio padrao: 0.00316203 );0.369751( Desvio padrao: 0.00617552 );0.433431( Desvio padrao: 0.00925606 )
+262144;0.326516( Desvio padrao: 0.00405941 );0.327511( Desvio padrao: 0.00169179 );0.339465( Desvio padrao: 0.00319352 );0.35864( Desvio padrao: 0.00463983 );0.400586( Desvio padrao: 0.00413741 );0.474086( Desvio padrao: 0.0174644 )
+524288;0.389056( Desvio padrao: 0.00515535 );0.389566( Desvio padrao: 0.00352004 );0.405228( Desvio padrao: 0.00755204 );0.422167( Desvio padrao: 0.00481268 );0.468546( Desvio padrao: 0.00558572 );0.536607( Desvio padrao: 0.0184629 )
+1048576;0.520396( Desvio padrao: 0.00414392 );0.524789( Desvio padrao: 0.00525433 );0.530792( Desvio padrao: 0.00541748 );0.553687( Desvio padrao: 0.00697127 );0.59638( Desvio padrao: 0.0102171 );0.665578( Desvio padrao: 0.0166869 )
