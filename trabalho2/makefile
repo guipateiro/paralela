@@ -1,9 +1,9 @@
 #preguissa
-CC = mpicc -O3
+CC = mpicc
 EXE = base
 
 all: $(EXE).c
-	$(CC) $(EXE).c -g -o $(EXE)
+	$(CC) $(EXE).c -o $(EXE)
 
 run: all
 	mpirun -np 2 ./$(EXE)
