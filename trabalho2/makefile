@@ -1,5 +1,5 @@
 #preguissa
-CC = mpicc
+CC = mpicc -O3
 EXE = base
 
 all: $(EXE).c

@@ -1,8 +1,0 @@
--;1;2;4;8;16;32
-16384;0.259675( Desvio padrao: 0.00236083 );0.261296( Desvio padrao: 0.00146572 );0.273522( Desvio padrao: 0.00254007 );0.292148( Desvio padrao: 0.00311015 );0.336607( Desvio padrao: 0.00243549 );0.403388( Desvio padrao: 0.0124522 )
-32768;1.38239( Desvio padrao: 0.0215887 );1.39442( Desvio padrao: 0.0169761 );0.833374( Desvio padrao: 0.00895413 );0.577026( Desvio padrao: 0.00564747 );0.489278( Desvio padrao: 0.0121623 );0.530553( Desvio padrao: 0.0176891 )
-65536;3.60819( Desvio padrao: 0.0925105 );2.50104( Desvio padrao: 0.0472053 );1.40003( Desvio padrao: 0.0145562 );0.863103( Desvio padrao: 0.00409249 );0.631093( Desvio padrao: 0.00763134 );0.62126( Desvio padrao: 0.0467612 )
-131072;8.04293( Desvio padrao: 0.152486 );4.7235( Desvio padrao: 0.0402285 );2.50453( Desvio padrao: 0.0353229 );1.43401( Desvio padrao: 0.0132795 );0.923588( Desvio padrao: 0.00740724 );0.767756( Desvio padrao: 0.0774221 )
-262144;16.8352( Desvio padrao: 0.243366 );9.15907( Desvio padrao: 0.182614 );4.73068( Desvio padrao: 0.0595856 );2.56789( Desvio padrao: 0.0268538 );1.50284( Desvio padrao: 0.0116616 );1.28564( Desvio padrao: 0.202191 )
-524288;34.4936( Desvio padrao: 0.214783 );17.9488( Desvio padrao: 0.138333 );9.39493( Desvio padrao: 0.238124 );4.81505( Desvio padrao: 0.0417689 );2.64103( Desvio padrao: 0.0169511 );1.61202( Desvio padrao: 0.0476751 )
-1048576;68.8564( Desvio padrao: 0.377983 );35.2004( Desvio padrao: 0.26015 );17.9956( Desvio padrao: 0.142753 );9.4602( Desvio padrao: 0.0848233 );4.99413( Desvio padrao: 0.028661 );2.97574( Desvio padrao: 0.545947 )
