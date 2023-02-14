@@ -16,5 +16,6 @@ media: media.cpp
 
 clear: 
 	rm -f $(EXE)	
+	rm -f *.o
 
 purge: clear	
